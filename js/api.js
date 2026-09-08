@@ -9,7 +9,7 @@
 // Stelle in diesem Code oder im Frontend auf.
 // ---------------------------------------------------------------------------
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
