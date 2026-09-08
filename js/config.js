@@ -10,7 +10,7 @@
 // Datei im Browser ausgeliefert wird und für jeden sichtbar ist.
 // ---------------------------------------------------------------------------
 
-export const SUPABASE_URL = "https://dsbhkyvssdqowpbyoraq.supabase.co/rest/v1/";
+export const SUPABASE_URL = "https://dsbhkyvssdqowpbyoraq.supabase.co";
 export const SUPABASE_ANON_KEY = "sb_publishable_oIvu1HMbfs14ofo5r7zJNA_23KoSNpl";
 
 // Name der Edge Function, die den Eltern-PIN-Login und alle
