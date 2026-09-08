@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Bildschirmzeit</title>
+  <meta name="theme-color" content="#0D0F13" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="connection-banner" class="banner banner--warning" role="status">
+    Keine Verbindung zur Cloud. Bitte überprüfe deine Internetverbindung.
+  </div>
+  <div id="save-error-banner" class="banner banner--danger" role="alert"></div>
+
+  <!-- ============================== KIND-ANSICHT ============================== -->
+  <main id="child-view" class="view is-visible">
+    <header class="app-header">
+      <span class="app-title">Bildschirmzeit</span>
+    </header>
+
+    <section class="timer-card" aria-label="Verbleibende Bildschirmzeit">
+      <p class="timer-label">Verbleibende Bildschirmzeit</p>
+      <p id="remaining-time" class="timer-display">07:00:00</p>
+      <p id="timer-status-message" class="status-message" role="status"></p>
+
+      <button id="start-stop-btn" type="button" class="btn btn--primary btn--huge">▶ START</button>
+
+      <button id="open-manual-entry" type="button" class="btn btn--ghost">
+        Zeit nachtragen
+      </button>
+    </section>
+
+    <section class="card" aria-labelledby="week-overview-heading">
+      <h2 id="week-overview-heading" class="card-heading">Diese Woche</h2>
+      <div id="week-overview-list" class="week-list"></div>
+      <div class="week-totals">
+        <span>Gesamt genutzt: <strong id="week-total-used">0:00 h</strong></span>
+        <span>Verbleibend: <strong id="week-total-remaining">7:00 h</strong></span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="history-heading">
+      <h2 id="history-heading" class="card-heading">Verlauf</h2>
+      <div id="history-list" class="history-list"></div>
+    </section>
+
+    <footer class="app-footer">
+      <button id="elternbereich-btn" type="button" class="btn btn--link">Elternbereich</button>
+    </footer>
+  </main>
+
+  <!-- ============================== ELTERN-ANSICHT ============================== -->
+  <main id="parent-view" class="view">
+    <header class="app-header app-header--parent">
+      <span class="app-title">Elternbereich</span>
+      <div class="app-header-actions">
+        <button id="parent-back-btn" type="button" class="btn btn--ghost btn--small">Zurück</button>
+        <button id="parent-logout-btn" type="button" class="btn btn--ghost btn--small">Abmelden</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="parent-week-row">
+        <label for="parent-week-select">Woche</label>
+        <select id="parent-week-select"></select>
+      </div>
+    </section>
+
+    <section class="summary-grid">
+      <div class="summary-card">
+        <p class="summary-label">Verbleibend</p>
+        <p id="parent-remaining" class="summary-value">07:00:00</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-label">Verbraucht</p>
+        <p id="parent-used" class="summary-value">0:00 h</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-label">Wochenbudget</p>
+        <p id="parent-budget" class="summary-value">7:00 h</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-label">Timerstatus</p>
+        <p id="parent-timer-status" class="summary-value summary-value--status">Timer gestoppt</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header-row">
+        <h2 class="card-heading">Zusätzliche Zeit</h2>
+        <button id="parent-add-time-btn" type="button" class="btn btn--primary btn--small">+ Zeit hinzufügen</button>
+      </div>
+      <div id="parent-adjustments-list" class="adjustments-list"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-heading">Verlauf &amp; Verwaltung</h2>
+      <div id="parent-history-list" class="history-list history-list--parent"></div>
+    </section>
+  </main>
+
+  <!-- ============================== MODAL: ZEIT NACHTRAGEN ============================== -->
+  <div id="manual-entry-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="manual-entry-title">
+    <div class="modal">
+      <h2 id="manual-entry-title" class="modal-title">Zeit nachtragen</h2>
+      <form id="manual-entry-form" class="modal-form">
+        <label for="manual-date">Datum</label>
+        <input id="manual-date" type="date" required />
+
+        <div class="field-row">
+          <div class="field-col">
+            <label for="manual-start">Startzeit</label>
+            <input id="manual-start" type="time" required />
+          </div>
+          <div class="field-col">
+            <label for="manual-end">Endzeit</label>
+            <input id="manual-end" type="time" required />
+          </div>
+        </div>
+
+        <p id="manual-duration-preview" class="duration-preview" aria-live="polite"></p>
+        <p id="manual-entry-error" class="form-error" role="alert"></p>
+
+        <div class="modal-actions">
+          <button id="manual-entry-cancel" type="button" class="btn btn--ghost">Abbrechen</button>
+          <button type="submit" class="btn btn--primary">Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================== MODAL: ELTERN-PIN ============================== -->
+  <div id="parent-pin-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="parent-pin-title">
+    <div class="modal">
+      <h2 id="parent-pin-title" class="modal-title">Elternbereich</h2>
+      <form id="parent-pin-form" class="modal-form">
+        <label for="parent-pin-input">PIN eingeben</label>
+        <input
+          id="parent-pin-input"
+          type="password"
+          inputmode="numeric"
+          autocomplete="off"
+          required
+        />
+        <p id="parent-pin-error" class="form-error" role="alert"></p>
+        <div class="modal-actions">
+          <button id="parent-pin-cancel" type="button" class="btn btn--ghost">Abbrechen</button>
+          <button type="submit" class="btn btn--primary">Anmelden</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================== MODAL: ZEIT HINZUFÜGEN ============================== -->
+  <div id="add-time-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="add-time-title">
+    <div class="modal">
+      <h2 id="add-time-title" class="modal-title">Zeit hinzufügen</h2>
+      <form id="add-time-form" class="modal-form">
+        <div class="field-row">
+          <div class="field-col">
+            <label for="add-time-hours">Stunden</label>
+            <input id="add-time-hours" type="number" min="0" max="23" step="1" value="0" />
+          </div>
+          <div class="field-col">
+            <label for="add-time-minutes">Minuten</label>
+            <input id="add-time-minutes" type="number" min="0" max="59" step="1" value="30" />
+          </div>
+        </div>
+        <label for="add-time-note">Notiz (optional)</label>
+        <input id="add-time-note" type="text" maxlength="120" placeholder="z. B. Belohnung fürs Aufräumen" />
+
+        <p id="add-time-error" class="form-error" role="alert"></p>
+        <div class="modal-actions">
+          <button id="add-time-cancel" type="button" class="btn btn--ghost">Abbrechen</button>
+          <button type="submit" class="btn btn--primary">Hinzufügen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================== MODAL: EINTRAG BEARBEITEN ============================== -->
+  <div id="edit-session-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="edit-session-title">
+    <div class="modal">
+      <h2 id="edit-session-title" class="modal-title">Eintrag bearbeiten</h2>
+      <form id="edit-session-form" class="modal-form">
+        <label for="edit-date">Datum</label>
+        <input id="edit-date" type="date" required />
+        <div class="field-row">
+          <div class="field-col">
+            <label for="edit-start">Startzeit</label>
+            <input id="edit-start" type="time" required />
+          </div>
+          <div class="field-col">
+            <label for="edit-end">Endzeit</label>
+            <input id="edit-end" type="time" required />
+          </div>
+        </div>
+        <p id="edit-session-error" class="form-error" role="alert"></p>
+        <div class="modal-actions">
+          <button id="edit-session-cancel" type="button" class="btn btn--ghost">Abbrechen</button>
+          <button type="submit" class="btn btn--primary">Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
